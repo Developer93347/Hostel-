@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Hostel System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .user-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .page-title p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .notification-btn::after {
+            content: '3';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Student Section Styles */
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-total {
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-total .card-icon {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .stat-present {
+            border-left: 4px solid var(--success);
+        }
+
+        .stat-present .card-icon {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .stat-new {
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-new .card-icon {
+            background: rgba(247, 37, 133, 0.2);
+            color: var(--accent);
+        }
+
+        .stat-graduating {
+            border-left: 4px solid var(--warning);
+        }
+
+        .stat-graduating .card-icon {
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--warning);
+        }
+
+        .filters-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 25px;
+        }
+
+        .filter-btn:hover {
+            background: var(--secondary);
+        }
+
+        .students-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            background: var(--light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(239, 71, 111, 0.2);
+            color: var(--danger);
+        }
+
+        .status-pending {
+            background: rgba(255, 209, 102, 0.2);
+            color: #e6b400;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3aa9d4;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--light);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d23c61;
+        }
+
+        /* Student Profile */
+        .student-profile {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--light);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .profile-info p {
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-card {
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .detail-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            width: 120px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--gray);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .student-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        /* Toggle between Student and Warden views */
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: fit-content;
+            margin-left: auto;
+        }
+
+        .toggle-option {
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Warden specific styles */
+        .warden-view {
+            display: none;
+        }
+
+        .student-view {
+            display: block;
+        }
+
+        /* Show warden view when toggled */
+        body.show-warden .warden-view {
+            display: block;
+        }
+
+        body.show-warden .student-view {
+            display: none;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/1006/1006773.png" alt="Logo">
+                <h2>Hostel Management</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+    <li><a href="Dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+    <li><a href="bio.html"><i class="fas fa-user-friends"></i>Student Management</a></li>
+    <li><a href="staff.html"><i class="fas fa-users-cog"></i>Staff Management</a></li>
+    <li><a href="room.html"><i class="fas fa-bed"></i>Room Management</a></li>
+    <li><a href="fees.html"><i class="fas fa-rupee-sign"></i>Fees Management</a></li>
+    <li><a href="Attendence.html"><i class="fas fa-clipboard-check"></i>Attendance</a></li>
+    <li><a href="mess_menu.html"><i class="fas fa-utensils"></i>Mess Menu</a></li>
+    <li><a href="complaints.html"><i class="fas fa-exclamation-circle"></i>Complaints</a></li>
+    <li><a href="setting.html"><i class="fas fa-cogs"></i>Settings</a></li>
+    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+</ul>
+            
+            <div class="user-profile">
+                <img src="" alt="User">
+                <div class="user-info">
+                    <h4>Nikhil Singh</h4>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="page-title">
+                    <h1>Student Management</h1>
+                    <p>View and manage student information</p>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search students...">
+                    </div>
+                    <a href="#" class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Toggle between Student and Warden views -->
+            <div class="view-toggle">
+                <div class="toggle-option active" onclick="toggleView('student')">Student View</div>
+                <div class="toggle-option" onclick="toggleView('warden')">Warden View</div>
+            </div>
+            
+            <!-- Student View -->
+            <div class="student-view">
+                <div class="student-profile">
+                    <div class="profile-header">
+                        <img src="" alt="Student" class="profile-image">
+                        <div class="profile-info">
+                            <h2>Nikhil Singh</h2>
+                            <p>BCA, 3rd Year</p>
+                            <p>Student ID: S001 | Room: B-25</p>
+                            <span class="status status-active">Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="detail-card">
+                            <h3>Personal Information</h3>
+                            <div class="detail-row">
+                                <div class="detail-label">Full Name:</div>
+                                <div class="detail-value">Nikhil Singh</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Date of Birth:</div>
+                                <div class="detail-value">May 15, 2006</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Gender:</div>
+                                <div class="detail-value">Male</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Contact:</div>
+                                <div class="detail-value">+91 4562845692</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Email:</div>
+                                <div class="detail-value">Nikhil.singh@gmail.com</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Address:</div>
+                                <div class="detail-value">Bihar</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <h3>Academic Information</h3>
+                            <div class="detail-row">
+                                <div class="detail-label">Student ID:</div>
+                                <div class="detail-value">S001</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Course:</div>
+                                <div class="detail-value">BCA</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Year:</div>
+                                <div class="detail-value">3rd Year</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Semester:</div>
+                                <div class="detail-value">5th Semester</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Roll Number:</div>
+                                <div class="detail-value">2304017</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Admission Date:</div>
+                                <div class="detail-value">August 15, 2024</div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <h3>Hostel Information</h3>
+                            <div class="detail-row">
+                                <div class="detail-label">Room Number:</div>
+                                <div class="detail-value">B-25</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Block:</div>
+                                <div class="detail-value">B Block</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Room Type:</div>
+                                <div class="detail-value">Single Occupancy</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Check-in Date:</div>
+                                <div class="detail-value">August 20, 2024</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Check-out Date:</div>
+                                <div class="detail-value">May 30, 2026</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Status:</div>
+                                <div class="detail-value"><span class="status status-active">Active</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-card">
+                            <h3>Emergency Contact</h3>
+                            <div class="detail-row">
+                                <div class="detail-label">Name:</div>
+                                <div class="detail-value">Lalan singh</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Relationship:</div>
+                                <div class="detail-value">Father</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Contact:</div>
+                                <div class="detail-value">+91 2564857923</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Email:</div>
+                                <div class="detail-value">Lalansingh@gmail.com</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Address:</div>
+                                <div class="detail-value">Bihar</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="document-type">Document Type</label>
+                        <select id="document-type">
+                            <option value="all">All Documents</option>
+                            <option value="id">ID Proof</option>
+                            <option value="admission">Admission Papers</option>
+                            <option value="medical">Medical Records</option>
+                            <option value="other">Other Documents</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download Documents
+                    </button>
+                </div>
+                
+                <div class="students-container">
+                    <div class="table-header">
+                        <h2>My Documents</h2>
+                        <button class="btn btn-primary" onclick="uploadDocument()">
+                            <i class="fas fa-upload"></i> Upload Document
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Document Name</th>
+                                    <th>Type</th>
+                                    <th>Upload Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Student ID Card</td>
+                                    <td>ID Proof</td>
+                                    <td>Aug 20, 2023</td>
+                                    <td><span class="status status-active">Verified</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-outline">Download</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Admission Letter</td>
+                                    <td>Admission Papers</td>
+                                    <td>Feb 15, 2023</td>
+                                    <td><span class="status status-active">Verified</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-outline">Download</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Medical Certificate</td>
+                                    <td>Medical Records</td>
+                                    <td>Sep 10, 2024</td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-outline">Download</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Parent Authorization</td>
+                                    <td>Other Documents</td>
+                                    <td>Aug 18, 2024</td>
+                                    <td><span class="status status-active">Verified</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-outline">Download</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warden View -->
+            <div class="warden-view">
+                <div class="student-stats">
+                    <div class="stat-card stat-total">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Students</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">248</div>
+                        <p class="card-text">Across all blocks</p>
+                    </div>
+                    
+                    <div class="stat-card stat-present">
+                        <div class="card-header">
+                            <h3 class="card-title">Currently Active</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">235</div>
+                        <p class="card-text">Students in hostel</p>
+                    </div>
+                    
+                    <div class="stat-card stat-new">
+                        <div class="card-header">
+                            <h3 class="card-title">New Admissions</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">12</div>
+                        <p class="card-text">This semester</p>
+                    </div>
+                    
+                    <div class="stat-card stat-graduating">
+                        <div class="card-header">
+                            <h3 class="card-title">Graduating</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">42</div>
+                        <p class="card-text">This year</p>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="warden-block-filter">Block</label>
+                        <select id="warden-block-filter">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-course-filter">Course</label>
+                        <select id="warden-course-filter">
+                            <option value="all">All Courses</option>
+                            <option value="cs">Computer Science</option>
+                            <option value="eng">Engineering</option>
+                            <option value="mba">MBA</option>
+                            <option value="law">BCA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-year-filter">Year</label>
+                        <select id="warden-year-filter">
+                            <option value="all">All Years</option>
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-status-filter">Status</label>
+                        <select id="warden-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                    <button class="btn btn-primary" onclick="addStudent()">
+                        <i class="fas fa-plus"></i> Add New Student
+                    </button>
+                </div>
+                
+                <div class="students-container">
+                    <div class="table-header">
+                        <h2>All Students</h2>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export Data
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Course</th>
+                                    <th>Year</th>
+                                    <th>Room No</th>
+                                    <th>Block</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>S001</td>
+                                    <td>Nikhil Singh</td>
+                                    <td>BCA</td>
+                                    <td>3rd Year</td>
+                                    <td>B-25</td>
+                                    <td>B Block</td>
+                                    <td><span class="status status-active">Active</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>S002</td>
+                                    <td>Mahesh</td>
+                                    <td>Electrical Engineering</td>
+                                    <td>2nd Year</td>
+                                    <td>A-105</td>
+                                    <td>A Block</td>
+                                    <td><span class="status status-active">Active</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>S003</td>
+                                    <td>Rohan</td>
+                                    <td>Mechanical Engineering</td>
+                                    <td>4th Year</td>
+                                    <td>C-302</td>
+                                    <td>C Block</td>
+                                    <td><span class="status status-inactive">Inactive</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>S004</td>
+                                    <td>Suraj</td>
+                                    <td>MBA</td>
+                                    <td>1st Year</td>
+                                    <td>B-115</td>
+                                    <td>B Block</td>
+                                    <td><span class="status status-active">Active</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>S005</td>
+                                    <td>Ravi</td>
+                                    <td>BCA</td>
+                                    <td>3rd Year</td>
+                                    <td>A-212</td>
+                                    <td>A Block</td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-outline">View</button>
+                                            <button class="btn btn-primary">Edit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="add-student-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Student</h2>
+                <button class="modal-close" onclick="closeAddStudent()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-student-name">Full Name</label>
+                        <input type="text" id="new-student-name" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-student-id">Student ID</label>
+                        <input type="text" id="new-student-id" placeholder="Enter student ID">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-student-course">Course</label>
+                        <select id="new-student-course">
+                            <option value="">Select Course</option>
+                            <option value="cs">Computer Science</option>
+                            <option value="eng">Engineering</option>
+                            <option value="mba">MBA</option>
+                            <option value="bca"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-student-year">Year</label>
+                        <select id="new-student-year">
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-student-email">Email Address</label>
+                        <input type="email" id="new-student-email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-student-phone">Phone Number</label>
+                        <input type="tel" id="new-student-phone" placeholder="Enter phone number">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-student-room">Room Number</label>
+                        <select id="new-student-room">
+                            <option value="">Select Room</option>
+                            <option value="A-101">A-101</option>
+                            <option value="A-102">A-102</option>
+                            <option value="B-201">B-201</option>
+                            <option value="B-202">B-202</option>
+                            <option value="B-204">B-204</option>
+                            <option value="C-301">C-301</option>
+                            <option value="C-302">C-302</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-student-status">Status</label>
+                        <select id="new-student-status">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new-student-address">Address</label>
+                    <textarea id="new-student-address" placeholder="Enter full address"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAddStudent()">Cancel</button>
+                <button class="btn btn-primary">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between Student and Warden views
+        function toggleView(view) {
+            if (view === 'warden') {
+                document.body.classList.add('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.remove('active');
+                document.querySelectorAll('.toggle-option')[1].classList.add('active');
+            } else {
+                document.body.classList.remove('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.add('active');
+                document.querySelectorAll('.toggle-option')[1].classList.remove('active');
+            }
+        }
+        
+        // Add student modal
+        function addStudent() {
+            document.getElementById('add-student-modal').style.display = 'flex';
+        }
+        
+        // Close add student modal
+        function closeAddStudent() {
+            document.getElementById('add-student-modal').style.display = 'none';
+        }
+        
+        // Upload document
+        function uploadDocument() {
+            alert('Document upload modal would open here in a real application.');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('add-student-modal');
+            if (event.target === modal) {
+                closeAddStudent();
+            }
+        };
+    </script>
+</body>
+</html>

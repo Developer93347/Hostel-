@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .user-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .page-title p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .notification-btn::after {
+            content: '3';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            background: var(--light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(255, 209, 102, 0.2);
+            color: #e6b400;
+        }
+
+        .status-resolved {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .status-paid {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .status-unpaid {
+            background: rgba(239, 71, 111, 0.2);
+            color: var(--danger);
+        }
+
+        /* AI Assistant */
+        .ai-assistant {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .ai-chatbot {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-chatbot-header {
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ai-chatbot-body {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            font-size: 0.9rem;
+        }
+
+        .ai-message {
+            background: var(--light);
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .ai-chatbot-footer {
+            padding: 10px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+        }
+
+        .ai-chatbot-footer input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            outline: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+        }
+
+        /* Toggle between Student and Warden views */
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: fit-content;
+            margin-left: auto;
+        }
+
+        .toggle-option {
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Warden specific styles */
+        .warden-view {
+            display: none;
+        }
+
+        .student-view {
+            display: block;
+        }
+
+        /* Show warden view when toggled */
+        body.show-warden .warden-view {
+            display: block;
+        }
+
+        body.show-warden .student-view {
+            display: none;
+        }
+
+        /* Menu card */
+        .menu-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .menu-day {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .menu-items {
+            list-style: none;
+        }
+
+        .menu-items li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .menu-items li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/1006/1006773.png" alt="Logo">
+                <h2>Hostel Management</h2>
+            </div>
+            
+           <ul class="sidebar-menu">
+    <li><a href="Dashboard.html" class="active"><i class="fas fa-home"></i>Dashboard</a></li>
+    <li><a href="bio.html"><i class="fas fa-user-friends"></i>Student Management</a></li>
+    <li><a href="staff.html"><i class="fas fa-users-cog"></i>Staff Management</a></li>
+    <li><a href="room.html"><i class="fas fa-bed"></i>Room Management</a></li>
+    <li><a href="fees.html"><i class="fas fa-rupee-sign"></i>Fees Management</a></li>
+    <li><a href="Attendence.html"><i class="fas fa-clipboard-check"></i>Attendance</a></li>
+    <li><a href="mess_menu.html"><i class="fas fa-utensils"></i>Mess Menu</a></li>
+    <li><a href="complaints.html"><i class="fas fa-exclamation-circle"></i>Complaints</a></li>
+    <li><a href="setting.html"><i class="fas fa-cogs"></i>Settings</a></li>
+    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+</ul>
+            
+            <div class="user-profile">
+                <img src="" alt="User">
+                <div class="user-info">
+                    <h4>Nikhil singh</h4>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p>Welcome to Hostel Management System</p>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    <a href="#" class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Toggle between Student and Warden views -->
+            <div class="view-toggle">
+                <div class="toggle-option active" onclick="toggleView('student')">Student View</div>
+                <div class="toggle-option" onclick="toggleView('warden')">Warden View</div>
+            </div>
+            
+            <!-- Student View -->
+            <div class="student-view">
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Room Details</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">B-204</div>
+                        <p class="card-text">Single Occupancy • With Attached Bathroom</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Fees Status</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">2200/<span style="font-size: 1rem;"></span></div>
+                        <p class="card-text"><span class="status status-paid">Paid</span> • Due on 15 aug 2025</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Complaints</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">2 <span style="font-size: 1rem;">Active</span></div>
+                        <p class="card-text"><span class="status status-pending">In Progress</span> • Last updated today</p>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab('mess-tab')">Mess Menu</div>
+                    <div class="tab" onclick="openTab('complaints-tab')">My Complaints</div>
+                    <div class="tab" onclick="openTab('fees-tab')">Fee Details</div>
+                </div>
+                
+                <div id="mess-tab" class="tab-content active">
+                    <div class="menu-card">
+                        <div class="menu-day">Monday</div>
+                        <ul class="menu-items">
+                            <li><strong>Breakfast:</strong>  Toast, Milk, Fruits</li>
+                            <li><strong>Lunch:</strong> Paneer, Rice, Salad</li>
+                            <li><strong>Dinner:</strong> Pasta, Garlic Bread, Soup</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="menu-card">
+                        <div class="menu-day">Tuesday</div>
+                        <ul class="menu-items">
+                            <li><strong>Breakfast:</strong> Pancakes, Syrup, Juice</li>
+                            <li><strong>Lunch:</strong> Vegetable Stir Fry, Noodles</li>
+                            <li><strong>Dinner:</strong> Grilled Fish, Mashed Potatoes</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div id="complaints-tab" class="tab-content">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#COMP-001</td>
+                                    <td>Electrical</td>
+                                    <td>12 june 2025</td>
+                                    <td><span class="status status-pending">In Progress</span></td>
+                                    <td><button class="btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-002</td>
+                                    <td>Plumbing</td>
+                                    <td>10 Sep 2025</td>
+                                    <td><span class="status status-resolved">Resolved</span></td>
+                                    <td><button class="btn">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="fees-tab" class="tab-content">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Semester</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Fall 2023</td>
+                                    <td>1,2000</td>
+                                    <td>15 Oct 2024</td>
+                                    <td><span class="status status-paid">Paid</span></td>
+                                    <td><button class="btn">Receipt</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Spring 2023</td>
+                                    <td>11,200</td>
+                                    <td>15 Mar 2025</td>
+                                    <td><span class="status status-paid">Paid</span></td>
+                                    <td><button class="btn">Receipt</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warden View -->
+            <div class="warden-view">
+                <div class="dashboard-cards">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Students</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">248</div>
+                        <p class="card-text">12 New this month</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Vacant Rooms</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-bed"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">14</div>
+                        <p class="card-text">8 Single, 6 Double occupancy</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Pending Complaints</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">18</div>
+                        <p class="card-text">5 High priority</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Attendance Today</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">92%</div>
+                        <p class="card-text">228/248 students present</p>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab('warden-complaints-tab')">Complaints</div>
+                    <div class="tab" onclick="openTab('attendance-tab')">Attendance</div>
+                    <div class="tab" onclick="openTab('rooms-tab')">Room Availability</div>
+                </div>
+                
+                <div id="warden-complaints-tab" class="tab-content active">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student</th>
+                                    <th>Category</th>
+                                    <th>Date</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#COMP-018</td>
+                                    <td>Rohan</td>
+                                    <td>Electrical</td>
+                                    <td>15 aug 2025</td>
+                                    <td><span class="status status-pending">High</span></td>
+                                    <td><span class="status status-pending">In Progress</span></td>
+                                    <td><button class="btn">Assign</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-017</td>
+                                    <td>Ravi</td>
+                                    <td>Plumbing</td>
+                                    <td>14 Sep 2025</td>
+                                    <td><span class="status status-resolved">Medium</span></td>
+                                    <td><span class="status status-pending">Assigned</span></td>
+                                    <td><button class="btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-016</td>
+                                    <td>Mahesh</td>
+                                    <td>Furniture</td>
+                                    <td>13 Sep 2025</td>
+                                    <td><span class="status status-resolved">Low</span></td>
+                                    <td><span class="status status-resolved">Resolved</span></td>
+                                    <td><button class="btn">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="attendance-tab" class="tab-content">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Present</th>
+                                    <th>Absent</th>
+                                    <th>Leave</th>
+                                    <th>Percentage</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>15 Sep 2025</td>
+                                    <td>228</td>
+                                    <td>12</td>
+                                    <td>8</td>
+                                    <td>92%</td>
+                                    <td><button class="btn">View Details</button></td>
+                                </tr>
+                                <tr>
+                                    <td>14 Sep 2025</td>
+                                    <td>230</td>
+                                    <td>10</td>
+                                    <td>8</td>
+                                    <td>93%</td>
+                                    <td><button class="btn">View Details</button></td>
+                                </tr>
+                                <tr>
+                                    <td>13 Sep 2025</td>
+                                    <td>235</td>
+                                    <td>8</td>
+                                    <td>5</td>
+                                    <td>95%</td>
+                                    <td><button class="btn">View Details</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="rooms-tab" class="tab-content">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Block</th>
+                                    <th>Room No</th>
+                                    <th>Type</th>
+                                    <th>Occupancy</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>A</td>
+                                    <td>101</td>
+                                    <td>Single</td>
+                                    <td>1/1</td>
+                                    <td><span class="status status-paid">Occupied</span></td>
+                                    <td><button class="btn">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>B</td>
+                                    <td>204</td>
+                                    <td>Single</td>
+                                    <td>0/1</td>
+                                    <td><span class="status status-unpaid">Vacant</span></td>
+                                    <td><button class="btn">Assign</button></td>
+                                </tr>
+                                <tr>
+                                    <td>C</td>
+                                    <td>305</td>
+                                    <td>Double</td>
+                                    <td>1/2</td>
+                                    <td><span class="status status-pending">Partially Filled</span></td>
+                                    <td><button class="btn">Assign</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- AI Assistant -->
+        <div class="ai-assistant" onclick="toggleChatbot()">
+            <i class="fas fa-robot"></i>
+        </div>
+        
+        <div class="ai-chatbot">
+            <div class="ai-chatbot-header">
+                <h3>AI Assistant</h3>
+                <i class="fas fa-times" onclick="toggleChatbot()"></i>
+            </div>
+            <div class="ai-chatbot-body">
+                <div class="message ai-message">
+                    Hello! I'm your hostel assistant. How can I help you today?
+                </div>
+                <div class="message user-message">
+                    I have a problem with my room's electricity.
+                </div>
+                <div class="message ai-message">
+                    I'm sorry to hear that. Would you like to file a complaint? I can guide you through the process.
+                </div>
+            </div>
+            <div class="ai-chatbot-footer">
+                <input type="text" placeholder="Type your message here...">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between Student and Warden views
+        function toggleView(view) {
+            if (view === 'warden') {
+                document.body.classList.add('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.remove('active');
+                document.querySelectorAll('.toggle-option')[1].classList.add('active');
+            } else {
+                document.body.classList.remove('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.add('active');
+                document.querySelectorAll('.toggle-option')[1].classList.remove('active');
+            }
+        }
+        
+        // Tab switching function
+        function openTab(tabId) {
+            // Hide all tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate the selected tab and show its content
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Toggle AI chatbot
+        function toggleChatbot() {
+            const chatbot = document.querySelector('.ai-chatbot');
+            chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+        }
+        
+        // Simulate login functionality
+        function login(userType) {
+            if (userType === 'warden') {
+                toggleView('warden');
+            } else {
+                toggleView('student');
+            }
+            
+            // Hide login page and show dashboard (simulated)
+            document.querySelector('.login-container').style.display = 'none';
+            document.querySelector('.dashboard-container').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

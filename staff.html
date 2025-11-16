@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Management - Hostel System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .user-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .page-title p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .notification-btn::after {
+            content: '3';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Staff Section Styles */
+        .staff-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-cleaning {
+            border-left: 4px solid var(--success);
+        }
+
+        .stat-cleaning .card-icon {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .stat-maintenance {
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-maintenance .card-icon {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .stat-security {
+            border-left: 4px solid var(--warning);
+        }
+
+        .stat-security .card-icon {
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--warning);
+        }
+
+        .stat-administrative {
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-administrative .card-icon {
+            background: rgba(247, 37, 133, 0.2);
+            color: var(--accent);
+        }
+
+        .filters-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 25px;
+        }
+
+        .filter-btn:hover {
+            background: var(--secondary);
+        }
+
+        .staff-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        .staff-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .staff-card {
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .staff-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .staff-header {
+            padding: 20px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .staff-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .staff-info {
+            flex: 1;
+        }
+
+        .staff-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .staff-role {
+            color: var(--primary);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .staff-id {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .staff-details {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+
+        .detail-label {
+            width: 100px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--gray);
+        }
+
+        .staff-actions {
+            padding: 15px 20px;
+            background: var(--light);
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3aa9d4;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--light);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d23c61;
+        }
+
+        /* Staff Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .staff-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .staff-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        /* Toggle between Student and Warden views */
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: fit-content;
+            margin-left: auto;
+        }
+
+        .toggle-option {
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Warden specific styles */
+        .warden-view {
+            display: none;
+        }
+
+        .student-view {
+            display: block;
+        }
+
+        /* Show warden view when toggled */
+        body.show-warden .warden-view {
+            display: block;
+        }
+
+        body.show-warden .student-view {
+            display: none;
+        }
+
+        /* Availability Status */
+        .availability {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .availability.available {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .availability.busy {
+            background: rgba(255, 209, 102, 0.2);
+            color: #e6b400;
+        }
+
+        .availability.off {
+            background: rgba(239, 71, 111, 0.2);
+            color: var(--danger);
+        }
+
+        /* Rating */
+        .rating {
+            display: flex;
+            gap: 3px;
+            margin-top: 5px;
+        }
+
+        .rating i {
+            color: var(--warning);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/1006/1006773.png" alt="Logo">
+                <h2>Hostel Management</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+    <li><a href="Dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+    <li><a href="bio.html"><i class="fas fa-user-friends"></i>Student Management</a></li>
+    <li><a href="staff.html" class="active"><i class="fas fa-users-cog"></i>Staff Management</a></li>
+    <li><a href="room.html"><i class="fas fa-bed"></i>Room Management</a></li>
+    <li><a href="fees.html"><i class="fas fa-rupee-sign"></i>Fees Management</a></li>
+    <li><a href="Attendence.html"><i class="fas fa-clipboard-check"></i>Attendance</a></li>
+    <li><a href="mess_menu.html"><i class="fas fa-utensils"></i>Mess Menu</a></li>
+    <li><a href="complaints.html"><i class="fas fa-exclamation-circle"></i>Complaints</a></li>
+    <li><a href="setting.html"><i class="fas fa-cogs"></i>Settings</a></li>
+    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+</ul>
+            
+            <div class="user-profile">
+                <img src="" alt="User">
+                <div class="user-info">
+                    <h4>Nikhil</h4>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="page-title">
+                    <h1>Staff Management</h1>
+                    <p>Manage and connect with hostel staff</p>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search staff...">
+                    </div>
+                    <a href="#" class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Toggle between Student and Warden views -->
+            <div class="view-toggle">
+                <div class="toggle-option active" onclick="toggleView('student')">Student View</div>
+                <div class="toggle-option" onclick="toggleView('warden')">Warden View</div>
+            </div>
+            
+            <!-- Student View -->
+            <div class="student-view">
+                <div class="staff-stats">
+                    <div class="stat-card stat-cleaning">
+                        <div class="card-header">
+                            <h3 class="card-title">Cleaning Staff</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-broom"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">8</div>
+                        <p class="card-text">Available: 6</p>
+                    </div>
+                    
+                    <div class="stat-card stat-maintenance">
+                        <div class="card-header">
+                            <h3 class="card-title">Maintenance</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">5</div>
+                        <p class="card-text">Available: 3</p>
+                    </div>
+                    
+                    <div class="stat-card stat-security">
+                        <div class="card-header">
+                            <h3 class="card-title">Security</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">4</div>
+                        <p class="card-text">On duty: 2</p>
+                    </div>
+                    
+                    <div class="stat-card stat-administrative">
+                        <div class="card-header">
+                            <h3 class="card-title">Administrative</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">3</div>
+                        <p class="card-text">Available: 2</p>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="department-filter">Department</label>
+                        <select id="department-filter">
+                            <option value="all">All Departments</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="security">Security</option>
+                            <option value="administrative">Administrative</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="availability-filter">Availability</label>
+                        <select id="availability-filter">
+                            <option value="all">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="busy">Busy</option>
+                            <option value="off">Off Duty</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="block-filter">Block</label>
+                        <select id="block-filter">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                </div>
+                
+                <div class="staff-container">
+                    <div class="table-header">
+                        <h2>Hostel Staff</h2>
+                        <button class="btn btn-outline" onclick="requestStaff()">
+                            <i class="fas fa-plus"></i> Request Staff
+                        </button>
+                    </div>
+                    
+                    <div class="staff-cards">
+                        <!-- Staff Card 1 -->
+                        <div class="staff-card">
+                            <div class="staff-header">
+                                <img src="g" alt="Staff" class="staff-img">
+                                <div class="staff-info">
+                                    <h3 class="staff-name">Priya Sharma</h3>
+                                    <p class="staff-role">Cleaning Staff</p>
+                                    <p class="staff-id">ID: STF-001</p>
+                                    <span class="availability available">Available</span>
+                                </div>
+                            </div>
+                            <div class="staff-details">
+                                <div class="detail-row">
+                                    <div class="detail-label">Block:</div>
+                                    <div class="detail-value">B Block</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Schedule:</div>
+                                    <div class="detail-value">Mon-Sat, 9AM-5PM</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Contact:</div>
+                                    <div class="detail-value">+91 98765 43210</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Rating:</div>
+                                    <div class="detail-value">
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                    
+                                            <i class="fas fa-star-half-alt"></i>
+                                            <span style="margin-left: 5px;">3.5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="staff-actions">
+                                <button class="btn btn-outline" onclick="viewStaff()">View Details</button>
+                                <button class="btn btn-primary" onclick="contactStaff()">Contact</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Staff Card 2 -->
+                        <div class="staff-card">
+                            <div class="staff-header">
+                                <img src="" alt="Staff" class="staff-img">
+                                <div class="staff-info">
+                                    <h3 class="staff-name">Rajesh Kumar</h3>
+                                    <p class="staff-role">Electrician</p>
+                                    <p class="staff-id">ID: STF-002</p>
+                                    <span class="availability busy">Busy</span>
+                                </div>
+                            </div>
+                            <div class="staff-details">
+                                <div class="detail-row">
+                                    <div class="detail-label">Block:</div>
+                                    <div class="detail-value">All Blocks</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Schedule:</div>
+                                    <div class="detail-value">Mon-Sat, 10AM-6PM</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Contact:</div>
+                                    <div class="detail-value">+91 97654 32109</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Rating:</div>
+                                    <div class="detail-value">
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            
+                                            <span style="margin-left: 5px;">2.9</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="staff-actions">
+                                <button class="btn btn-outline" onclick="viewStaff()">View Details</button>
+                                <button class="btn btn-outline" onclick="contactStaff()">Message</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Staff Card 3 -->
+                        <div class="staff-card">
+                            <div class="staff-header">
+                                <img src="" alt="Staff" class="staff-img">
+                                <div class="staff-info">
+                                    <h3 class="staff-name">Vikram Singh</h3>
+                                    <p class="staff-role">Security Guard</p>
+                                    <p class="staff-id">ID: STF-003</p>
+                                    <span class="availability available">Available</span>
+                                </div>
+                            </div>
+                            <div class="staff-details">
+                                <div class="detail-row">
+                                    <div class="detail-label">Block:</div>
+                                    <div class="detail-value">Main Gate</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Schedule:</div>
+                                    <div class="detail-value">Night Shift (10PM-6AM)</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Contact:</div>
+                                    <div class="detail-value">+91 96543 21098</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Rating:</div>
+                                    <div class="detail-value">
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            
+                                            <span style="margin-left: 5px;">3.0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="staff-actions">
+                                <button class="btn btn-outline" onclick="viewStaff()">View Details</button>
+                                <button class="btn btn-primary" onclick="contactStaff()">Contact</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warden View -->
+            <div class="warden-view">
+                <div class="staff-stats">
+                    <div class="stat-card stat-cleaning">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Staff</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">20</div>
+                        <p class="card-text">Across all departments</p>
+                    </div>
+                    
+                    <div class="stat-card stat-maintenance">
+                        <div class="card-header">
+                            <h3 class="card-title">On Duty</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">14</div>
+                        <p class="card-text">Currently working</p>
+                    </div>
+                    
+                    <div class="stat-card stat-security">
+                        <div class="card-header">
+                            <h3 class="card-title">Attendance</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">92%</div>
+                        <p class="card-text">This month</p>
+                    </div>
+                    
+                    <div class="stat-card stat-administrative">
+                        <div class="card-header">
+                            <h3 class="card-title">New Requests</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">5</div>
+                        <p class="card-text">Pending approval</p>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="warden-department-filter">Department</label>
+                        <select id="warden-department-filter">
+                            <option value="all">All Departments</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="security">Security</option>
+                            <option value="administrative">Administrative</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-status-filter">Employment</label>
+                        <select id="warden-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="fulltime">Full Time</option>
+                            <option value="parttime">Part Time</option>
+                            <option value="contract">Contract</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-block-filter">Block</label>
+                        <select id="warden-block-filter">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                    <button class="btn btn-primary" onclick="addStaff()">
+                        <i class="fas fa-plus"></i> Add New Staff
+                    </button>
+                </div>
+                
+                <div class="staff-container">
+                    <div class="table-header">
+                        <h2>All Staff Members</h2>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download"></i> Export Report
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Department</th>
+                                    <th>Block</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>STF-001</td>
+                                    <td>Priya Sharma</td>
+                                    <td>Cleaning Staff</td>
+                                    <td>Cleaning</td>
+                                    <td>B Block</td>
+                                    <td><span class="availability available">Available</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" onclick="viewStaff()">View</button>
+                                        <button class="btn btn-primary" onclick="editStaff()">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STF-002</td>
+                                    <td>Rajesh Kumar</td>
+                                    <td>Electrician</td>
+                                    <td>Maintenance</td>
+                                    <td>All Blocks</td>
+                                    <td><span class="availability busy">Busy</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" onclick="viewStaff()">View</button>
+                                        <button class="btn btn-primary" onclick="editStaff()">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STF-003</td>
+                                    <td>Vikram Singh</td>
+                                    <td>Security Guard</td>
+                                    <td>Security</td>
+                                    <td>Main Gate</td>
+                                    <td><span class="availability available">Available</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" onclick="viewStaff()">View</button>
+                                        <button class="btn btn-primary" onclick="editStaff()">Edit</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>STF-004</td>
+                                    <td>Amit</td>
+                                    <td>Warden</td>
+                                    <td>Administrative</td>
+                                    <td>All Blocks</td>
+                                    <td><span class="availability available">Available</span></td>
+                                    <td>
+                                        <button class="btn btn-outline" onclick="viewStaff()">View</button>
+                                        <button class="btn btn-primary" onclick="editStaff()">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div class="modal" id="add-staff-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Staff Member</h2>
+                <button class="modal-close" onclick="closeAddStaff()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-name">Full Name</label>
+                        <input type="text" id="staff-name" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-role">Role/Position</label>
+                        <input type="text" id="staff-role" placeholder="Enter role">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-department">Department</label>
+                        <select id="staff-department">
+                            <option value="">Select Department</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="security">Security</option>
+                            <option value="administrative">Administrative</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-block">Assigned Block</label>
+                        <select id="staff-block">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-email">Email Address</label>
+                        <input type="email" id="staff-email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-phone">Phone Number</label>
+                        <input type="tel" id="staff-phone" placeholder="Enter phone number">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-schedule">Work Schedule</label>
+                        <select id="staff-schedule">
+                            <option value="fulltime">Full Time</option>
+                            <option value="parttime">Part Time</option>
+                            <option value="shift">Shift Based</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-status">Employment Status</label>
+                        <select id="staff-status">
+                            <option value="active">Active</option>
+                            <option value="probation">Probation</option>
+                            <option value="contract">Contract</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="staff-address">Address</label>
+                    <textarea id="staff-address" placeholder="Enter full address"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="staff-image">Upload Photo</label>
+                    <input type="file" id="staff-image">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeAddStaff()">Cancel</button>
+                <button class="btn btn-primary">Add Staff Member</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between Student and Warden views
+        function toggleView(view) {
+            if (view === 'warden') {
+                document.body.classList.add('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.remove('active');
+                document.querySelectorAll('.toggle-option')[1].classList.add('active');
+            } else {
+                document.body.classList.remove('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.add('active');
+                document.querySelectorAll('.toggle-option')[1].classList.remove('active');
+            }
+        }
+        
+        // Add staff modal
+        function addStaff() {
+            document.getElementById('add-staff-modal').style.display = 'flex';
+        }
+        
+        // Close add staff modal
+        function closeAddStaff() {
+            document.getElementById('add-staff-modal').style.display = 'none';
+        }
+        
+        // View staff details
+        function viewStaff() {
+            alert('Staff details would show here in a real application.');
+        }
+        
+        // Edit staff details
+        function editStaff() {
+            alert('Edit staff modal would open here in a real application.');
+        }
+        
+        // Contact staff
+        function contactStaff() {
+            alert('Contact staff functionality would open here in a real application.');
+        }
+        
+        // Request staff
+        function requestStaff() {
+            alert('Request staff modal would open here in a real application.');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('add-staff-modal');
+            if (event.target === modal) {
+                closeAddStaff();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Management - Hostel System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .user-profile {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .user-info span {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .page-title p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            text-decoration: none;
+            position: relative;
+        }
+
+        .notification-btn::after {
+            content: '3';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Complaint Section Styles */
+        .complaint-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .stat-pending {
+            border-left: 4px solid var(--warning);
+        }
+
+        .stat-pending .card-icon {
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--warning);
+        }
+
+        .stat-progress {
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-progress .card-icon {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .stat-resolved {
+            border-left: 4px solid var(--success);
+        }
+
+        .stat-resolved .card-icon {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .stat-total {
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-total .card-icon {
+            background: rgba(247, 37, 133, 0.2);
+            color: var(--accent);
+        }
+
+        .filters-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .filter-group select, .filter-group input {
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 25px;
+        }
+
+        .filter-btn:hover {
+            background: var(--secondary);
+        }
+
+        .complaints-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 1.2rem;
+            color: var(--dark);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            background: var(--light);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: rgba(255, 209, 102, 0.2);
+            color: #e6b400;
+        }
+
+        .status-progress {
+            background: rgba(67, 97, 238, 0.2);
+            color: var(--primary);
+        }
+
+        .status-resolved {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .priority {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background: rgba(239, 71, 111, 0.2);
+            color: var(--danger);
+        }
+
+        .priority-medium {
+            background: rgba(255, 209, 102, 0.2);
+            color: #e6b400;
+        }
+
+        .priority-low {
+            background: rgba(76, 201, 240, 0.2);
+            color: var(--success);
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3aa9d4;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--light);
+        }
+
+        /* Complaint Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        /* Complaint Details Modal */
+        .complaint-details {
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            width: 120px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .detail-value {
+            flex: 1;
+        }
+
+        .timeline {
+            margin-top: 30px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            bottom: 0;
+            width: 2px;
+            background: var(--light-gray);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .timeline-content {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            .filter-group select, .filter-group input {
+                width: 100%;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .complaint-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        /* Toggle between Student and Warden views */
+        .view-toggle {
+            display: flex;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            margin-bottom: 20px;
+            width: fit-content;
+            margin-left: auto;
+        }
+
+        .toggle-option {
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .toggle-option.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Warden specific styles */
+        .warden-view {
+            display: none;
+        }
+
+        .student-view {
+            display: block;
+        }
+
+        /* Show warden view when toggled */
+        body.show-warden .warden-view {
+            display: block;
+        }
+
+        body.show-warden .student-view {
+            display: none;
+        }
+
+        /* AI Suggestion */
+        .ai-suggestion {
+            background: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .ai-suggestion h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .ai-suggestion h4 i {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://cdn-icons-png.flaticon.com/512/1006/1006773.png" alt="Logo">
+                <h2>Hostel Management</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+    <li><a href="Dashboard.html"><i class="fas fa-home"></i>Dashboard</a></li>
+    <li><a href="bio.html"><i class="fas fa-user-friends"></i>Student Management</a></li>
+    <li><a href="staff.html"><i class="fas fa-users-cog"></i>Staff Management</a></li>
+    <li><a href="room.html"><i class="fas fa-bed"></i>Room Management</a></li>
+    <li><a href="fees.html"><i class="fas fa-rupee-sign"></i>Fees Management</a></li>
+    <li><a href="Attendence.html"><i class="fas fa-clipboard-check"></i>Attendance</a></li>
+    <li><a href="mess_menu.html"><i class="fas fa-utensils"></i>Mess Menu</a></li>
+    <li><a href="complaints.html" class="active"><i class="fas fa-exclamation-circle"></i>Complaints</a></li>
+    <li><a href="setting.html"><i class="fas fa-cogs"></i>Settings</a></li>
+    <li><a href="index.html"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+</ul>
+            
+            <div class="user-profile">
+                <img src="" alt="User">
+                <div class="user-info">
+                    <h4>Nikhil</h4>
+                    <span>Student</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="page-title">
+                    <h1>Complaint Management</h1>
+                    <p>Submit and track your complaints</p>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search complaints...">
+                    </div>
+                    <a href="#" class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Toggle between Student and Warden views -->
+            <div class="view-toggle">
+                <div class="toggle-option active" onclick="toggleView('student')">Student View</div>
+                <div class="toggle-option" onclick="toggleView('warden')">Warden View</div>
+            </div>
+            
+            <!-- Student View -->
+            <div class="student-view">
+                <div class="complaint-stats">
+                    <div class="stat-card stat-pending">
+                        <div class="card-header">
+                            <h3 class="card-title">Pending Complaints</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">2</div>
+                        <p class="card-text">Awaiting action</p>
+                    </div>
+                    
+                    <div class="stat-card stat-progress">
+                        <div class="card-header">
+                            <h3 class="card-title">In Progress</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">1</div>
+                        <p class="card-text">Being addressed</p>
+                    </div>
+                    
+                    <div class="stat-card stat-resolved">
+                        <div class="card-header">
+                            <h3 class="card-title">Resolved</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">5</div>
+                        <p class="card-text">Completed complaints</p>
+                    </div>
+                    
+                    <div class="stat-card stat-total">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Complaints</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">8</div>
+                        <p class="card-text">All time</p>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="status-filter">Status</label>
+                        <select id="status-filter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="category-filter">Category</label>
+                        <select id="category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="date-filter">Date</label>
+                        <input type="month" id="date-filter">
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                    <button class="btn btn-primary" onclick="openNewComplaintModal()">New Complaint</button>
+                </div>
+                
+                <div class="complaints-container">
+                    <div class="table-header">
+                        <h2>My Complaints</h2>
+                        <button class="btn btn-outline" onclick="openAIAssistant()">
+                            <i class="fas fa-robot"></i> AI Help
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Category</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#COMP-0012</td>
+                                    <td>Electrical</td>
+                                    <td>Power outlet not working</td>
+                                    <td>18 Sep 2024</td>
+                                    <td><span class="priority priority-high">High</span></td>
+                                    <td><span class="status status-progress">In Progress</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0011</td>
+                                    <td>Plumbing</td>
+                                    <td>Water leakage in bathroom</td>
+                                    <td>15 Sep 2024</td>
+                                    <td><span class="priority priority-medium">Medium</span></td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0010</td>
+                                    <td>Cleaning</td>
+                                    <td>Room cleaning request</td>
+                                    <td>12 Sep 2024</td>
+                                    <td><span class="priority priority-low">Low</span></td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0009</td>
+                                    <td>Furniture</td>
+                                    <td>Study table repair</td>
+                                    <td>05 Sep 2024</td>
+                                    <td><span class="priority priority-medium">Medium</span></td>
+                                    <td><span class="status status-resolved">Resolved</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warden View -->
+            <div class="warden-view">
+                <div class="complaint-stats">
+                    <div class="stat-card stat-pending">
+                        <div class="card-header">
+                            <h3 class="card-title">Pending Complaints</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">18</div>
+                        <p class="card-text">Awaiting action</p>
+                    </div>
+                    
+                    <div class="stat-card stat-progress">
+                        <div class="card-header">
+                            <h3 class="card-title">In Progress</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">7</div>
+                        <p class="card-text">Being addressed</p>
+                    </div>
+                    
+                    <div class="stat-card stat-resolved">
+                        <div class="card-header">
+                            <h3 class="card-title">Resolved</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">42</div>
+                        <p class="card-text">This month</p>
+                    </div>
+                    
+                    <div class="stat-card stat-total">
+                        <div class="card-header">
+                            <h3 class="card-title">Avg. Resolution Time</h3>
+                            <div class="card-icon">
+                                <i class="fas fa-stopwatch"></i>
+                            </div>
+                        </div>
+                        <div class="card-value">2.3 days</div>
+                        <p class="card-text">Department average</p>
+                    </div>
+                </div>
+                
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="warden-status-filter">Status</label>
+                        <select id="warden-status-filter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-category-filter">Category</label>
+                        <select id="warden-category-filter">
+                            <option value="all">All Categories</option>
+                            <option value="electrical">Electrical</option>
+                            <option value="plumbing">Plumbing</option>
+                            <option value="cleaning">Cleaning</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-priority-filter">Priority</label>
+                        <select id="warden-priority-filter">
+                            <option value="all">All Priorities</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="warden-block-filter">Block</label>
+                        <select id="warden-block-filter">
+                            <option value="all">All Blocks</option>
+                            <option value="A">Block A</option>
+                            <option value="B">Block B</option>
+                            <option value="C">Block C</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-btn">Apply Filters</button>
+                    <button class="btn btn-primary">Generate Report</button>
+                </div>
+                
+                <div class="complaints-container">
+                    <div class="table-header">
+                        <h2>All Complaints</h2>
+                        <button class="btn btn-outline" onclick="openAIAssistant()">
+                            <i class="fas fa-robot"></i> AI Analysis
+                        </button>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student</th>
+                                    <th>Room</th>
+                                    <th>Category</th>
+                                    <th>Subject</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#COMP-0012</td>
+                                    <td>Rohan</td>
+                                    <td>B-204</td>
+                                    <td>Electrical</td>
+                                    <td>Power outlet not working</td>
+                                    <td><span class="priority priority-high">High</span></td>
+                                    <td><span class="status status-progress">In Progress</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">Manage</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0011</td>
+                                    <td>Mohan</td>
+                                    <td>A-105</td>
+                                    <td>Plumbing</td>
+                                    <td>Water leakage in bathroom</td>
+                                    <td><span class="priority priority-medium">Medium</span></td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">Assign</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0010</td>
+                                    <td>Suraj</td>
+                                    <td>C-302</td>
+                                    <td>Cleaning</td>
+                                    <td>Room cleaning request</td>
+                                    <td><span class="priority priority-low">Low</span></td>
+                                    <td><span class="status status-pending">Pending</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">Assign</button></td>
+                                </tr>
+                                <tr>
+                                    <td>#COMP-0009</td>
+                                    <td>Suresh</td>
+                                    <td>B-115</td>
+                                    <td>Furniture</td>
+                                    <td>Study table repair</td>
+                                    <td><span class="priority priority-medium">Medium</span></td>
+                                    <td><span class="status status-resolved">Resolved</span></td>
+                                    <td><button class="btn btn-outline" onclick="openComplaintDetails()">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Complaint Modal -->
+    <div class="modal" id="new-complaint-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Submit New Complaint</h2>
+                <button class="modal-close" onclick="closeNewComplaintModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="complaint-category">Category</label>
+                    <select id="complaint-category">
+                        <option value="">Select Category</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="plumbing">Plumbing</option>
+                        <option value="cleaning">Cleaning</option>
+                        <option value="furniture">Furniture</option>
+                        <option value="internet">Internet</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="complaint-subject">Subject</label>
+                    <input type="text" id="complaint-subject" placeholder="Brief description of the issue">
+                </div>
+                
+                <div class="form-group">
+                    <label for="complaint-description">Description</label>
+                    <textarea id="complaint-description" placeholder="Please provide detailed information about the issue"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="complaint-priority">Priority</label>
+                    <select id="complaint-priority">
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="complaint-image">Upload Image (Optional)</label>
+                    <input type="file" id="complaint-image">
+                </div>
+                
+                <div class="ai-suggestion">
+                    <h4><i class="fas fa-robot"></i> AI Suggestion</h4>
+                    <p>Based on your issue, we recommend including clear photos of the problem and selecting the appropriate priority level. For electrical issues, please avoid touching exposed wires and mention if there's any immediate danger.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeNewComplaintModal()">Cancel</button>
+                <button class="btn btn-primary">Submit Complaint</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Details Modal -->
+    <div class="modal" id="complaint-details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Complaint Details #COMP-0012</h2>
+                <button class="modal-close" onclick="closeComplaintDetails()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="complaint-details">
+                    <div class="detail-row">
+                        <div class="detail-label">Category:</div>
+                        <div class="detail-value">Electrical</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Subject:</div>
+                        <div class="detail-value">Power outlet not working</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Submitted:</div>
+                        <div class="detail-value">18 Sep 2024, 14:32</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Priority:</div>
+                        <div class="detail-value"><span class="priority priority-high">High</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value"><span class="status status-progress">In Progress</span></div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Description:</div>
+                        <div class="detail-value">The power outlet near the study table in my room (B-204) is not working. I've tried multiple devices but none are getting power. This is affecting my studies as I need to use my laptop.</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px;">Status Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">18 Sep 2024, 14:32</div>
+                            <p>Complaint submitted by student</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">18 Sep 2024, 15:45</div>
+                            <p>Complaint assigned to electrician - Rajesh Kumar</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">19 Sep 2024, 10:15</div>
+                            <p>Technician visited room, diagnosed issue as faulty wiring</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">19 Sep 2024, 16:30</div>
+                            <p>Parts ordered, expected delivery in 2 days</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 30px;">
+                    <label for="status-update">Update Status</label>
+                    <select id="status-update">
+                        <option value="pending">Pending</option>
+                        <option value="progress" selected>In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="technician-notes">Technician Notes</label>
+                    <textarea id="technician-notes">Found faulty wiring in the outlet. Need to replace the entire socket. Parts have been ordered.</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeComplaintDetails()">Close</button>
+                <button class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between Student and Warden views
+        function toggleView(view) {
+            if (view === 'warden') {
+                document.body.classList.add('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.remove('active');
+                document.querySelectorAll('.toggle-option')[1].classList.add('active');
+            } else {
+                document.body.classList.remove('show-warden');
+                document.querySelectorAll('.toggle-option')[0].classList.add('active');
+                document.querySelectorAll('.toggle-option')[1].classList.remove('active');
+            }
+        }
+        
+        // Open new complaint modal
+        function openNewComplaintModal() {
+            document.getElementById('new-complaint-modal').style.display = 'flex';
+        }
+        
+        // Close new complaint modal
+        function closeNewComplaintModal() {
+            document.getElementById('new-complaint-modal').style.display = 'none';
+        }
+        
+        // Open complaint details modal
+        function openComplaintDetails() {
+            document.getElementById('complaint-details-modal').style.display = 'flex';
+        }
+        
+        // Close complaint details modal
+        function closeComplaintDetails() {
+            document.getElementById('complaint-details-modal').style.display = 'none';
+        }
+        
+        // Open AI assistant
+        function openAIAssistant() {
+            alert('AI Assistant would open in a real application. It would provide intelligent suggestions for complaint resolution and automated responses.');
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        };
+    </script>
+</body>
+</html>
